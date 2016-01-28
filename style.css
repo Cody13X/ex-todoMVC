@@ -1,0 +1,98 @@
+body {
+  margin: 0 auto;
+  background-color: #F5F5F5;
+}
+.container {
+  position: relative;
+  width: 502px;
+  height: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+h1 {
+  text-align: center;
+  color: #E8D5D5;
+  font-size: 70px;
+}
+#throw {
+  position: relative;
+  margin-top: 1%;
+/*  box-shadow: 1px 24px 70px 1px #ccc;*/
+}
+#throw, .disabled {
+  width: 430px;
+  height: 70px;
+  /*border: 1px 0px solid black;*/
+  padding-left: 60px;
+  font-size: 24px;
+}
+.disabled {
+  background-color: white;
+}
+.checkall {
+  position: absolute;
+  margin-top: 35px;
+  margin-left: -470px;
+  opacity: 0.25;
+}
+.checkall:hover {
+  opacity: 1;
+}
+.check {
+  position: absolute;
+  font-size: 30px;
+  margin-top: 33px;
+  margin-left: -470px;
+/*  opacity: 0.1;*/
+}
+.destroy {
+  position: absolute;
+  margin-top: 5%;
+  margin-left: -30px;
+  color: red;
+  visibility: hidden;
+  opacity: 0.4;
+}
+.destroy:hover {
+  opacity: 1;
+}
+/*icon not checked*/
+.checked {
+  position: absolute;
+  margin-left: -14px;
+  color: green;
+}
+footer {
+  font-size: 14px;
+  color: #777;
+  padding: 10px 15px;
+  width: 460px;
+  height: 20px;
+  border-top: 1px solid #e6e6e6;
+  background-color: white;
+  visibility: hidden;
+}
+#todo-count {
+  float: left;
+  text-align: left;
+}
+#filters {
+  margin: 0;
+  list-style: none;
+  position: absolute;
+  left: 100px;
+}
+li {
+  display: inline;
+}
+a {
+  color: #777;
+  margin: 3px;
+  padding: 3px 7px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 3px;
+}
+.selected {
+  border-color: rgba(175, 47, 47, 0.2);
+}
