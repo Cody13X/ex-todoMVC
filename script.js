@@ -1,9 +1,13 @@
 $(document).ready(function() {
-  $('#throw').focus();
+  //$('#throw').focus();
   var count = 0;
   var activeCount = 0;
   var decount = false;
-  //$(".list").append(cont);
+  //reload
+  if(localStorage.getItem('all')) {
+    $('body').html(localStorage.getItem('all'));
+    count = $('.list').children().length;
+  }
   $('#throw').on("keypress", function(e) {
     var text = $("#throw").val();
     if(e.which == 13) { // KeyCode de la touche entrée
@@ -13,34 +17,53 @@ $(document).ready(function() {
       var todos = $('.list').html();
       var chevron = "<i class='fa fa-chevron-down checkall'></i>";
       $('.todo').append(chevron);
-      var footer = $('footer').css("visibility", "visible");
+      $('footer').css("visibility", "visible");
       count++;
       $("#todo-count strong").text(count);
       //<span class="glyphicons glyphicons-remove"></span>
       //<span class="glyphicons glyphicons-chevron-down"></span>
 
-      var todos2 = $('.todo').html();
+      /*var todos2 = $('.todo').html();
       localStorage.setItem('store2', todos2);
       localStorage.setItem('store', todos);
-      localStorage.setItem('statecount', count);
+      localStorage.setItem('statecount', count);*/
+      var all = $('body').html();
+      localStorage.setItem('all', all);
     }
   });
+  function clearAll() {
+    var len = $('.list').children('.completed').length;
+    $('.list').children('.completed').each( function() {
+      $(this).remove();
+    });
+    count -= len;
+    $('.clrcomp').css({"visibility": "hidden"});
+  }
   function deCount() {
     count--;
     $("#todo-count strong").text(count);
     decount = false;
+    var all = $('body').html();
+    localStorage.setItem('all', all);
   }
+  //check selected todo
   function doCheck(pthis) {
     $(pthis).append($("<i class='fa fa-check checked'></i>"));
+    //texte barré
     $(pthis).parent("div").children("input").css({"text-decoration": "line-through", "opacity": "0.5"});
+    $(pthis).parent("div").toggleClass('completed');
     activeCount++;
     $("#todo-count strong").text(count-activeCount);
+    var all = $('body').html();
+    localStorage.setItem('all', all);
   }
   function unCheck(pthis) {
     $(pthis).parent("div").children("input").css({"text-decoration": "none", "opacity": "1"});
     $(pthis).find("i").remove();
     activeCount--;
     $("#todo-count strong").text(count-activeCount);
+    var all = $('body').html();
+    localStorage.setItem('all', all);
   }
   function onTick() {
     $('.parent').mouseover(function() {
@@ -65,13 +88,17 @@ $(document).ready(function() {
         }
       }
     });
-    //selectionne et deselectionne un input
+    //selectionne et deselectionne la div parent de l'input
     $('.check').off('click').on("click", function() {
       if( $(this).parent("div").children("input").css('text-decoration') == 'none') {
         doCheck(this);
+        if( $('.clrcomp').css('visibility') == 'hidden')
+          $('.clrcomp').css({"visibility": "visible"});
       }
       else {
         unCheck(this);
+        if( $('.clrcomp').css('visibility') == 'visible')
+          $('.clrcomp').css({"visibility": "hidden"});
       }
     });
     //select/deselect tout
@@ -91,36 +118,42 @@ $(document).ready(function() {
       var testcol = "rgba(175, 47, 47, 0.2)";
       if(bgcolor !== testcol) {
         $(this).css({"border-color": "rgba(175, 47, 47, 0.2)"});
+        if( $(this).hasClass('act') ) {
+          $('.parent').remove();
+          //save todo list in completed and remove
+  /*        var list = localStorage.getItem('store');
+          localStorage.setItem('completed', list);
+          localStorage.removeItem('store');*/
+        }
         //delete todos and save in completed list
         if( $(this).hasClass('comp') ) {
           $('.parent').remove();
           //save todo list in completed and remove
-          var list = localStorage.getItem('store');
+  /*        var list = localStorage.getItem('store');
           localStorage.setItem('completed', list);
-          localStorage.removeItem('store');
+          localStorage.removeItem('store');*/
+        }
+        //delete all selected todos
+        if( $(this).hasClass('clrcomp') ) {
+          clearAll();
         }
       }
-      if( $(this).hasClass('selected') ) {
+      /*if( $(this).hasClass('selected') ) {
         console.log('piouf');
-      }
+      }*/
       $('a').not(this).css({"border-color": "rgba(0, 0, 0, 0)"});
+      //save the border link
+      var all = $('body').html();
+      localStorage.setItem('all', all);
     });
     if(decount) {
       deCount();
     }
     if(count==0) {
       $('footer').css("visibility", "hidden");
+      $('.checkall').remove();
     }
-    if(localStorage.getItem('store')) {
-      $('.list').html(localStorage.getItem('store'));
-      $('.todo').html(localStorage.getItem('store2'));
-      count = localStorage.getItem('statecount');
-      if( count > 0)
-        $('footer').css({"visibility": "visible"});
-
-      $("#todo-count strong").text(count);
-    }
-    //localStorage.clear();
+    localStorage.clear();
 	}
 	setInterval(onTick, 500);
 })

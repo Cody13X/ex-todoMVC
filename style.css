@@ -5,7 +5,7 @@ body {
 .container {
   position: relative;
   width: 502px;
-  height: 800px;
+  height: 630px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -26,25 +26,31 @@ h1 {
   padding-left: 60px;
   font-size: 24px;
 }
+#throw:focus {
+  outline: none;
+}
 .disabled {
   background-color: white;
 }
+/*chevron*/
 .checkall {
   position: absolute;
   margin-top: 35px;
   margin-left: -470px;
-  opacity: 0.25;
+  color: #777;
 }
 .checkall:hover {
-  opacity: 1;
+  color: black;
 }
+/*button circle*/
 .check {
   position: absolute;
   font-size: 30px;
   margin-top: 33px;
   margin-left: -470px;
-/*  opacity: 0.1;*/
+  color: #777;
 }
+/*red cross*/
 .destroy {
   position: absolute;
   margin-top: 5%;
@@ -56,7 +62,7 @@ h1 {
 .destroy:hover {
   opacity: 1;
 }
-/*icon not checked*/
+/*green checked icon*/
 .checked {
   position: absolute;
   margin-left: -14px;
@@ -93,6 +99,14 @@ a {
   border: 1px solid transparent;
   border-radius: 3px;
 }
+/*border for selected button*/
 .selected {
   border-color: rgba(175, 47, 47, 0.2);
+}
+.clrcomp {
+  margin-left: 40px;
+  visibility: hidden;
+}
+.clrcomp:hover {
+  text-decoration:underline;
 }
