@@ -17,12 +17,10 @@ h1 {
 #throw {
   position: relative;
   margin-top: 1%;
-/*  box-shadow: 1px 24px 70px 1px #ccc;*/
 }
 #throw, .disabled {
   width: 430px;
   height: 70px;
-  /*border: 1px 0px solid black;*/
   padding-left: 60px;
   font-size: 24px;
 }
@@ -33,14 +31,12 @@ h1 {
   background-color: white;
 }
 /*chevron*/
-.checkall {
+.fa-chevron-down {
   position: absolute;
   margin-top: 35px;
   margin-left: -470px;
-  color: #777;
-}
-.checkall:hover {
-  color: black;
+  color: #A9A9B1;
+  visibility: hidden;
 }
 /*button circle*/
 .check {
@@ -100,10 +96,12 @@ a {
   border-radius: 3px;
 }
 /*border for selected button*/
-.selected {
+.alltodos {
   border-color: rgba(175, 47, 47, 0.2);
 }
+/*bouton clear completed*/
 .clrcomp {
+  border: none;
   margin-left: 40px;
   visibility: hidden;
 }
