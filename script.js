@@ -1,88 +1,107 @@
-$(document).ready(function() {
+$(document).ready(function() /*=>*/ {
   var count = 0;
   var activeCount = 0;
   var decount = false;
   var i = Number(localStorage.getItem('todo-counter')) + 1,
-      $itemList = $('.list'),
-      $newTodo = $('#throw';
+        $itemList = $('.list'),
+        $newTodo = $('#throw'),
+        order = [],
+        orderList;
 
-  //reload
-  if( localStorage.getItem('all') ) {
-    $('.list').html( localStorage.getItem('all') );
-    //compteur de todos
-    count = $('.list').children().length;
-    if(count>0) {
-      $('.fa-chevron-down').css("visibility", "visible");
-      $('footer').css("visibility", "visible");
+  // Load todo list
+  orderList = localStorage.getItem('todo-orders');
+
+  orderList = orderList ? orderList.split(',') : [];
+  //par defaut
+  var islined = '<input style="border:none" class="disabled" value="';
+  //si todo est completed
+  var check = '<i class="fa fa-check checked">' + '</i>';
+  var completed = "";
+  //loop todo list from local storage if any
+  for(j = 0, k = orderList.length; j < k; j++) {
+    var ischeck = "";
+    console.log( localStorage.getItem("todo-check-"+"2") );
+    if(localStorage.getItem("todo-check-"+(j+1)) === "1") {
+      ischeck = check;
+      islined = '<input style="border:none; text-decoration:line-through; color: #A9A9B1;" class="disabled" value="';
+      completed = " completed";
     }
-    //compteur de todo completed
-    activeCount = $('.completed').length;
-    $('.destroy').css({"visibility": "hidden"});
-    if($('.parent').not(".completed").length > 0) {
-      $('.fa-chevron-down').css({"color": "#A9A9B1"});
-    }
-    else
-      $('.fa-chevron-down').css({"color": "black"});
+
+    $itemList.append(
+    "<div class='" + orderList[j] + completed + "'>" + islined + localStorage.getItem(orderList[j]) +'" disabled="true">' + '<i class="fa fa-times destroy">'
+    + '</i>' + '<i class="fa fa-circle-o check">' + ischeck + '</i>' + '</div>'
+    );
+    //reset defaut
+    islined = '<input style="border:none" class="disabled" value="';
+    completed = "";
   }
+
+  //compteur de todos
+  count = $('.list').children().length;
+  if(count>0) {
+    $('.fa-chevron-down').css("visibility", "visible");
+    $('footer').css("visibility", "visible");
+  }
+  //compteur de todo completed
+  activeCount = $('.completed').length;
+  $('.destroy').css({"visibility": "hidden"});
+  if($('.list').children("div").not(".completed").length > 0) {
+    $('.fa-chevron-down').css({"color": "#A9A9B1"});
+  }
+  else
+    $('.fa-chevron-down').css({"color": "black"});
+
   if( localStorage.getItem('storeFooter') )
     $('footer').html( localStorage.getItem('storeFooter') );
 
-  $('#throw').on("keypress", function(e) {
+
+  //Clear orderlist
+  function clearOrder() {
+    var $newTodoList = $('.list div');
+    // Empty the order array
+    order.length = 0;
+
+    // Go through the list item, grab the class then push into the array
+    $newTodoList.each(function() {
+      var $this = $(this).attr('class');
+      order.push($this);
+    });
+
+    // Convert the array into string and save to localStorage
+    localStorage.setItem( 'todo-orders', order.join(',') );
+  }
+
+  $('#throw').on("keypress", function(e) /*=>*/ {
     var text = $("#throw").val();
     //filtre les todo vides
     if(e.which == 13 && text !== "") { // KeyCode de la touche entrée
       // Take the value of the input field and save it to localStorage
       localStorage.setItem( "todo-" + i, $newTodo.val() );
+      localStorage.setItem( "todo-check-" + i, 0 );
 
       // Set the to-do max counter so on page refresh it keeps going up instead of reset
       localStorage.setItem('todo-counter', i);
 
       // Append a new list item with the value of the new todo list
-      $itemList.append("<div class='parent" + i + "'>" + '<input style="border:none" class="disabled" value="' + localStorage.getItem("todo-" + i) +'" disabled="true">' + '<i class="fa fa-times destroy">'
+      $itemList.append("<div class='todo-" + i + "'>" + '<input style="border:none" class="disabled" value="' + localStorage.getItem("todo-" + i) +'" disabled="true">' + '<i class="fa fa-times destroy">'
       + '</i>' + '<i class="fa fa-circle-o check">' + '</i>' + '</div>');
 
-
-      //fonction ??
-      var $newTodoList = $('#show-items li');
-          // Empty the order array
-          order.length = 0;
-
-          // Go through the list item, grab the ID then push into the array
-          $newTodoList.each(function() {
-              var $this = $(this).attr('id');
-              order.push($this);
-          });
-
-          // Convert the array into string and save to localStorage
-          localStorage.setItem(
-              'todo-orders', order.join(',')
-          );
-
-
-
-      // Hide the new list, then fade it in for effects
-      $(".parent" + i).css('display', 'none').fadeIn();
+      clearOrder();
 
       i++;
 
-
-
       this.value = '';
-      var html = '<div class="parent">' + '<input style="border:none" class="disabled" value="'+text+'" disabled="true">' + '<i class="fa fa-times destroy">' + '</i>' + '<i class="fa fa-circle-o check">' + '</i>' + '</div>';
-      $(".list").append(html);
-      var todos = $('.list').html();
       $('.fa-chevron-down').css("visibility", "visible");
       $('footer').css("visibility", "visible");
       count++;
       $("#todo-count strong").text(count);
-      if($('.parent').not(".completed").length > 0)
+      if($('.list').children("div").not(".completed").length > 0)
         $('.fa-chevron-down').css({"color": "#A9A9B1"});
       else
         $('.fa-chevron-down').css({"color": "black"});
       //<span class="glyphicons glyphicons-remove"></span>
       //<span class="glyphicons glyphicons-chevron-down"></span>
-      var all = $('.list').html();
-      localStorage.setItem('all', all);
+
       var footer = $('footer').html();
       localStorage.setItem('storeFooter', footer);
     }
@@ -90,69 +109,94 @@ $(document).ready(function() {
   //Clear completed todos
   function clearAll() {
     var len = $('.list').children('.completed').length;
+    // Remove todo list from localStorage based on the id of the clicked parent element
     $('.list').children('.completed').each( function() {
+      var parentdiv = $(this).attr('class');
+      localStorage.removeItem(parentdiv);
+      parentdiv = parentdiv.replace("todo-", "todo-check-");
+      localStorage.removeItem(parentdiv);
+      //remove from DOM
       $(this).remove();
+      //clear localstorage
+      clearOrder();
     });
     count -= len;
     activeCount -= len;
     $('.clrcomp').css({"visibility": "hidden", "border-color": "rgba(0, 0, 0, 0)"});
     $('.alltodos').css({"border-color": "rgba(175, 47, 47, 0.2)"});
-    $('.parent').not('.completed').css({"display": "inline-block"});
+  //  $('.parent').not('.completed').css({"display": "inline-block"});
   }
   function deCount() {
     count--;
     $("#todo-count strong").text(count);
     decount = false;
-    var all = $('.list').html();
-    localStorage.setItem('all', all);
   }
   //check selected todo
   function doCheck(pthis) {
     $(pthis).append($("<i class='fa fa-check checked'></i>"));
     //texte barré
+    var parentdiv = $(pthis).parent("div").attr('class');
+    parentdiv = parentdiv.replace("todo-", "todo-check-");
+    localStorage.setItem(parentdiv, 1);
+
     $(pthis).parent("div").children("input").css({"text-decoration": "line-through", "color": "#A9A9B1"});
     $(pthis).parent("div").toggleClass('completed');
     activeCount++;
     $("#todo-count strong").text(count-activeCount);
-    var all = $('.list').html();
-    localStorage.setItem('all', all);
   }
   //deselect
   function unCheck(pthis) {
     $(pthis).parent("div").children("input").css({"text-decoration": "none", "color": "rgb(84, 84, 84)"});
     $(pthis).parent("div").removeClass('completed');
+    //annule todo check dans local storage
+    var parentdiv = $(pthis).parent("div").attr('class');
+    parentdiv = parentdiv.replace("todo-", "todo-check-");
+    localStorage.setItem(parentdiv, 0);
+    //supprime le check icon
     $(pthis).find("i").remove();
     activeCount--;
     $("#todo-count strong").text(count-activeCount);
-    var all = $('.list').html();
-    localStorage.setItem('all', all);
   }
   //boucle events
   function onTick() {
     $('body').off('click').on("click", function() {
       $('.disabled').attr("disabled", "true").css({"outline": "none"});
     });
-    $('.parent').mouseover(function() {
+    $('.list').children("div").mouseover(function() {
       $(this).find(".destroy").css("visibility", "visible");
     });
-    $('.parent').mouseout(function() {
+    $('.list').children("div").mouseout(function() {
       $(this).find(".destroy").css("visibility", "hidden");
     });
     //remove todo
     $('.destroy').off('click').on("click", function() {
+      var parentdiv = $(this).parent().closest('div').attr('class');
+      // Remove todo list from localStorage based on the id of the clicked parent element
+      localStorage.removeItem(parentdiv);
+      parentdiv = parentdiv.replace("todo-", "todo-check-");
+      localStorage.removeItem(parentdiv);
+      //remove from DOM
       $(this).parent().closest('div').remove();
+      clearOrder();
       decount = true;
     });
-    //edit
-    $('.parent').off('click').on("dblclick", function() {
+    //edit doubleclick
+    $('.list').children("div").off('click').on("dblclick", function() {
       $(this).find(".disabled").removeAttr('disabled').focus().css({"outline": "solid", "text-decoration": "none", "color": "rgb(84, 84, 84)"});
     });
-    //remove si vide
+    //supprime todo si vide
     $('.disabled').on("keypress", function(e) {
       if(e.which == 13) {
         var val = $(this).val();
         if(val === '') {
+          var parentdiv = $(this).parent("div").attr('class');
+          // Remove todo list from localStorage based on the id of the clicked parent element
+          localStorage.removeItem(parentdiv);
+          parentdiv = parentdiv.replace("todo-", "todo-check-");
+          localStorage.removeItem(parentdiv);
+
           $(this).parent("div").remove();
+          clearOrder();
           decount = true;
         }
         $(this).attr("disabled", "true").css({"outline": "none"});
@@ -175,11 +219,11 @@ $(document).ready(function() {
       if($('.check').parent("div").not(".completed").length > 0) {
         $('.fa-chevron-down').css({"color": "#A9A9B1"});
       }
-/*      else
+      else
         $('.fa-chevron-down').css({"color": "black"});
 
       var footer = $('footer').html();
-      localStorage.setItem('storeFooter', footer);*/
+      localStorage.setItem('storeFooter', footer);
     });
     //select/deselect tout
     $('.fa-chevron-down').off('click').on("click", function() {
@@ -263,7 +307,7 @@ $(document).ready(function() {
       $('.fa-chevron-down').css("visibility", "hidden");
     }
     //filtre les todos
-    if($('.act').css('border-color') == 'rgba(175, 47, 47, 0.2)') {
+    /*if($('.act').css('border-color') == 'rgba(175, 47, 47, 0.2)') {
       $('.parent').each(function() {
         if($(this).not(".completed").length > 0)
           $(this).css({"display": "inline-block"});
@@ -280,16 +324,17 @@ $(document).ready(function() {
       });
     }
     if($('.list').length > 0 && $('.parent').not(".completed").length == 0)
-      $('.fa-chevron-down').css({"color": "black"});
+      $('.fa-chevron-down').css({"color": "black"});*/
+    //affiche ou cache le bouton clear all
     if( activeCount > 0 && $('.clrcomp').css('visibility') == 'hidden')
       $('.clrcomp').css("visibility", "visible");
     else if( activeCount < 1)
       $('.clrcomp').css("visibility", "hidden");
 
-    if(count==0 && activeCount==0)
-      localStorage.clear();
+/*    if(count==0 && activeCount==0)
+      localStorage.clear();*/
 
-    localStorage.clear();
+//localStorage.clear();
 	}
 	setInterval(onTick, 500);
 })
