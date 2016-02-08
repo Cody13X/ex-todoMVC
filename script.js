@@ -17,20 +17,39 @@ $(document).ready(function() /*=>*/ {
   //si todo est completed
   var check = '<i class="fa fa-check checked">' + '</i>';
   var completed = "";
+
+  //load first for active filter
+  if( localStorage.getItem('storeFooter') )
+    $('footer').html( localStorage.getItem('storeFooter') );
+
   //loop todo list from local storage if any
   for(j = 0, k = orderList.length; j < k; j++) {
     var ischeck = "";
-    console.log( localStorage.getItem("todo-check-"+"2") );
-    if(localStorage.getItem("todo-check-"+(j+1)) === "1") {
+    var dstyle = "";
+    var texte = "";
+    texte += orderList[j];
+    if(texte.indexOf(" completed") >= 0) {
       ischeck = check;
       islined = '<input style="border:none; text-decoration:line-through; color: #A9A9B1;" class="disabled" value="';
       completed = " completed";
     }
-
+    if($('.comp').css('border-color') == 'rgba(175, 47, 47, 0.2)') {
+      if(completed === " completed")
+        dstyle = "'style=display:inline-block;";
+      else
+        dstyle = "'style=display:none;";
+    }
+    else if($('.act').css('border-color') == 'rgba(175, 47, 47, 0.2)') {
+      if(completed === " completed")
+        dstyle = "'style=display:none;";
+      else
+        dstyle = "'style=display:inline-block;";
+    }
     $itemList.append(
-    "<div class='" + orderList[j] + completed + "'>" + islined + localStorage.getItem(orderList[j]) +'" disabled="true">' + '<i class="fa fa-times destroy">'
+    "<div class='" + orderList[j] /*+ completed*/ + dstyle + "'>" + islined + localStorage.getItem(orderList[j] /*+ completed*/) +'" disabled="true">' + '<i class="fa fa-times destroy">'
     + '</i>' + '<i class="fa fa-circle-o check">' + ischeck + '</i>' + '</div>'
     );
+
     //reset defaut
     islined = '<input style="border:none" class="disabled" value="';
     completed = "";
@@ -50,10 +69,6 @@ $(document).ready(function() /*=>*/ {
   }
   else
     $('.fa-chevron-down').css({"color": "black"});
-
-  if( localStorage.getItem('storeFooter') )
-    $('footer').html( localStorage.getItem('storeFooter') );
-
 
   //Clear orderlist
   function clearOrder() {
@@ -77,7 +92,6 @@ $(document).ready(function() /*=>*/ {
     if(e.which == 13 && text !== "") { // KeyCode de la touche entrée
       // Take the value of the input field and save it to localStorage
       localStorage.setItem( "todo-" + i, $newTodo.val() );
-      localStorage.setItem( "todo-check-" + i, 0 );
 
       // Set the to-do max counter so on page refresh it keeps going up instead of reset
       localStorage.setItem('todo-counter', i);
@@ -113,8 +127,6 @@ $(document).ready(function() /*=>*/ {
     $('.list').children('.completed').each( function() {
       var parentdiv = $(this).attr('class');
       localStorage.removeItem(parentdiv);
-      parentdiv = parentdiv.replace("todo-", "todo-check-");
-      localStorage.removeItem(parentdiv);
       //remove from DOM
       $(this).remove();
       //clear localstorage
@@ -136,24 +148,32 @@ $(document).ready(function() /*=>*/ {
     $(pthis).append($("<i class='fa fa-check checked'></i>"));
     //texte barré
     var parentdiv = $(pthis).parent("div").attr('class');
-    parentdiv = parentdiv.replace("todo-", "todo-check-");
-    localStorage.setItem(parentdiv, 1);
+    var todoval = localStorage.getItem(parentdiv);
+    localStorage.removeItem(parentdiv);
+    parentdiv = parentdiv + " completed";
+    localStorage.setItem(parentdiv, todoval);
 
     $(pthis).parent("div").children("input").css({"text-decoration": "line-through", "color": "#A9A9B1"});
     $(pthis).parent("div").toggleClass('completed');
+    clearOrder();
     activeCount++;
     $("#todo-count strong").text(count-activeCount);
   }
   //deselect
   function unCheck(pthis) {
     $(pthis).parent("div").children("input").css({"text-decoration": "none", "color": "rgb(84, 84, 84)"});
-    $(pthis).parent("div").removeClass('completed');
     //annule todo check dans local storage
     var parentdiv = $(pthis).parent("div").attr('class');
-    parentdiv = parentdiv.replace("todo-", "todo-check-");
-    localStorage.setItem(parentdiv, 0);
+    var todoval = localStorage.getItem(parentdiv);
+
+    $(pthis).parent("div").removeClass('completed');
+    localStorage.removeItem(parentdiv);
+    parentdiv = $(pthis).parent("div").attr('class');
+    localStorage.setItem(parentdiv, todoval);
+
     //supprime le check icon
     $(pthis).find("i").remove();
+    clearOrder();
     activeCount--;
     $("#todo-count strong").text(count-activeCount);
   }
@@ -173,8 +193,6 @@ $(document).ready(function() /*=>*/ {
       var parentdiv = $(this).parent().closest('div').attr('class');
       // Remove todo list from localStorage based on the id of the clicked parent element
       localStorage.removeItem(parentdiv);
-      parentdiv = parentdiv.replace("todo-", "todo-check-");
-      localStorage.removeItem(parentdiv);
       //remove from DOM
       $(this).parent().closest('div').remove();
       clearOrder();
@@ -184,21 +202,23 @@ $(document).ready(function() /*=>*/ {
     $('.list').children("div").off('click').on("dblclick", function() {
       $(this).find(".disabled").removeAttr('disabled').focus().css({"outline": "solid", "text-decoration": "none", "color": "rgb(84, 84, 84)"});
     });
-    //supprime todo si vide
+    //edite ou supprime todo si vide
     $('.disabled').on("keypress", function(e) {
       if(e.which == 13) {
         var val = $(this).val();
+        var parentdiv = $(this).parent("div").attr('class');
         if(val === '') {
-          var parentdiv = $(this).parent("div").attr('class');
           // Remove todo list from localStorage based on the id of the clicked parent element
-          localStorage.removeItem(parentdiv);
-          parentdiv = parentdiv.replace("todo-", "todo-check-");
           localStorage.removeItem(parentdiv);
 
           $(this).parent("div").remove();
           clearOrder();
           decount = true;
         }
+        //edite localStorage
+        var todoval =  $(this).val();
+        localStorage.setItem(parentdiv, todoval);
+
         $(this).attr("disabled", "true").css({"outline": "none"});
         if($(this).parent("div").hasClass('completed'))
           $(this).css({"text-decoration": "line-through", "color": "#A9A9B1"});
@@ -306,24 +326,8 @@ $(document).ready(function() /*=>*/ {
       $('footer').css("visibility", "hidden");
       $('.fa-chevron-down').css("visibility", "hidden");
     }
-    //filtre les todos
-    /*if($('.act').css('border-color') == 'rgba(175, 47, 47, 0.2)') {
-      $('.parent').each(function() {
-        if($(this).not(".completed").length > 0)
-          $(this).css({"display": "inline-block"});
-        else
-          $(this).css({"display": "none"});
-      });
-    }
-    if($('.comp').css('border-color') == 'rgba(175, 47, 47, 0.2)') {
-      $('.parent').each(function() {
-        if($(this).not(".completed").length > 0)
-          $(this).css({"display": "none"});
-        else
-          $(this).css({"display": "inline-block"});
-      });
-    }
-    if($('.list').length > 0 && $('.parent').not(".completed").length == 0)
+
+    /*if($('.list').length > 0 && $('.parent').not(".completed").length == 0)
       $('.fa-chevron-down').css({"color": "black"});*/
     //affiche ou cache le bouton clear all
     if( activeCount > 0 && $('.clrcomp').css('visibility') == 'hidden')
@@ -331,7 +335,7 @@ $(document).ready(function() /*=>*/ {
     else if( activeCount < 1)
       $('.clrcomp').css("visibility", "hidden");
 
-/*    if(count==0 && activeCount==0)
+    /*if(count==0 && activeCount==0)
       localStorage.clear();*/
 
 //localStorage.clear();
