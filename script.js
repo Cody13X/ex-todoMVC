@@ -46,7 +46,7 @@ $(document).ready(function() /*=>*/ {
         dstyle = "'style=display:inline-block;";
     }
     $itemList.append(
-    "<div class='" + orderList[j] /*+ completed*/ + dstyle + "'>" + islined + localStorage.getItem(orderList[j] /*+ completed*/) +'" disabled="true">' + '<i class="fa fa-times destroy">'
+    "<div class='" + orderList[j] + dstyle + "'>" + islined + localStorage.getItem(orderList[j] ) +'" disabled="true">' + '<i class="fa fa-times destroy">'
     + '</i>' + '<i class="fa fa-circle-o check">' + ischeck + '</i>' + '</div>'
     );
 
@@ -58,7 +58,9 @@ $(document).ready(function() /*=>*/ {
   //compteur de todos
   count = $('.list').children().length;
   if(count>0) {
-    $('.fa-chevron-down').css("visibility", "visible");
+    if($('.comp').css('border-color') !== 'rgba(175, 47, 47, 0.2)')
+      $('.fa-chevron-down').css("visibility", "visible");
+
     $('footer').css("visibility", "visible");
   }
   //compteur de todo completed
@@ -327,16 +329,11 @@ $(document).ready(function() /*=>*/ {
       $('.fa-chevron-down').css("visibility", "hidden");
     }
 
-    /*if($('.list').length > 0 && $('.parent').not(".completed").length == 0)
-      $('.fa-chevron-down').css({"color": "black"});*/
     //affiche ou cache le bouton clear all
     if( activeCount > 0 && $('.clrcomp').css('visibility') == 'hidden')
       $('.clrcomp').css("visibility", "visible");
     else if( activeCount < 1)
       $('.clrcomp').css("visibility", "hidden");
-
-    /*if(count==0 && activeCount==0)
-      localStorage.clear();*/
 
 //localStorage.clear();
 	}
